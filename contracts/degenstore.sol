@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -12,6 +12,8 @@ contract DegenStore is ERC20, Ownable {
     }
 
     mapping(uint256 => GameStore) gamestore;
+
+    mapping(address => mapping (uint256 => uint256)) itemsOwned;
 
 
     constructor() ERC20("Degen", "DGN")Ownable(msg.sender) {}
@@ -43,6 +45,8 @@ contract DegenStore is ERC20, Ownable {
         uint256 price = gamestore[item].price;
         require(price <= balanceOf(msg.sender), "Error: Not Enough Degen Token");
         _transfer(msg.sender, address(this), price);
+        itemsOwned[msg.sender][item]+=1;
+        
     }
 
     function getAllItemsFromGameStore() public view returns(GameStore[] memory){
@@ -69,6 +73,11 @@ contract DegenStore is ERC20, Ownable {
          uint256 _amount = amount * 1e18;
           require(_amount <= balanceOf(msg.sender), "Error: Not Enough Degen Token to Burn");
         _burn(msg.sender, _amount);
+    }
+
+    function getItemsOwned(uint256 item) external view returns (uint256) {
+       return itemsOwned[msg.sender][item]; 
+
     }
 
 }
